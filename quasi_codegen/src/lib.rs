@@ -26,6 +26,7 @@ extern crate rustc_plugin;
 
 use syntax::ast;
 use syntax::codemap::Span;
+use syntax::errors::FatalError;
 use syntax::ext::base::ExtCtxt;
 use syntax::ext::base;
 use syntax::parse::token::*;
@@ -585,7 +586,10 @@ fn parse_arguments_to_quote(cx: &ExtCtxt, tts: &[ast::TokenTree])
 
     let cx_expr = match p.parse_expr() {
         Ok(expr) => expr,
-        Err(err) => panic!(),
+        Err(mut err) => {
+            err.emit();
+            panic!(FatalError);
+        }
     };
     if !p.eat(&token::Comma).ok().unwrap() {
         let _ = p.fatal("expected token `,`");
